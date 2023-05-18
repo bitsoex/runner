@@ -171,6 +171,17 @@ sudo chown -R $svc_user ./runner
 pushd ./runner
 
 #---------------------------------------
+# TEMP: To be removed when https://github.com/actions/runner/pull/2465 is merged
+#---------------------------------------
+defaults import actions.runner.plist.template bin/actions.runner.plist.template
+defaults write actions.runner.plist.template LimitLoadToSessionType -array Background Aqua LoginWindow StandardIO
+defaults export actions.runner.plist.template - > bin/actions.runner.plist.template
+
+sed -i '' 's/launchctl load -w/launchctl bootstrap user\/${user_id}/' bin/darwin.svc.sh.template
+sed -i '' 's/launchctl unload/launchctl bootout user\/${user_id}/' bin/darwin.svc.sh.template
+sed -i '' 's/launchctl list/launchctl print user\/${user_id}/' bin/darwin.svc.sh.template
+
+#---------------------------------------
 # Unattend config
 #---------------------------------------
 runner_url="https://github.com/${runner_scope}"
